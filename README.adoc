@@ -24,6 +24,12 @@ cd github
 git clone https://github.com/tsahbazoglu/fms-docker.git
 cd fms-docker
 ----
+replace:
+
+core-alpine/replace_with_payara.zip
+core/replace_with_payara.zip
+core/replace_with_fms.v.x.x.x.ear
+mongodb/replace_with_mongodb-linux-x86_64-x.x.x.tgz
 
 == Operation System
 ----
