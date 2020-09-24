@@ -19,21 +19,8 @@ This project dockerize link:https://github.com/tsahbazoglu/fms[FMS^]
 
 [#user-content-quick-start-with-docker]
 == Quick Start with Docker
-----
-cd github
-git clone https://github.com/tsahbazoglu/fms-docker.git
-cd fms-docker
-----
 
-replace:
-----
-mv core-alpine/replace_with_payara.zip                 ~/Downloads/payara.zip
-mv core/replace_with_payara.zip                        ~/Downloads/payara.zip
-mv core/replace_with_fms.v.x.x.x.ear                   ~/Downloads/fms.v.1.0.1.ear
-mv mongodb/replace_with_mongodb-linux-x86_64-x.x.x.tgz ~/Downloads/mongodb-linux-x86_64-3.2.3.tgz
-----
-
-== Operation System
+=== Operation System
 ----
 $ lsb_release -a
 No LSB modules are available.
@@ -67,9 +54,6 @@ newgrp docker
 docker run hello-world
 ----
 
- 
-
-
 run docker as non root:: 
 ----
 groupadd docker
@@ -89,6 +73,23 @@ docker container stop $(docker ps -a -q)
 docker rm $(docker ps -a -q)
 docker rmi --force $(docker images -q)
 ----
+
+
+----
+cd github
+git clone https://github.com/tsahbazoglu/fms-docker.git
+cd fms-docker
+----
+
+replace:
+----
+mv core-alpine/replace_with_payara.zip                 ~/Downloads/payara.zip
+mv core/replace_with_payara.zip                        ~/Downloads/payara.zip
+mv core/replace_with_fms.v.x.x.x.ear                   ~/Downloads/fms.v.1.0.1.ear
+mv mongodb/replace_with_mongodb-linux-x86_64-x.x.x.tgz ~/Downloads/mongodb-linux-x86_64-3.2.3.tgz
+----
+
+
 
 git clone::
 ----
