@@ -19,6 +19,9 @@ This project dockerize link:https://github.com/tsahbazoglu/fms[FMS^]
 
 [#user-content-quick-start-with-docker]
 == Quick Start with Docker
+----
+git clone https://github.com/tsahbazoglu/fms-docker.git
+----
 
 == Operation System
 ----
