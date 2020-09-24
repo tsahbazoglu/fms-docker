@@ -1,0 +1,81 @@
+version: '3.4'
+
+services:
+  openldap:
+    build: 
+      context: ./openldap
+      network: host
+      args:
+        OLP: $OPENLDAP_ENV_PSWD
+        OLDT: $OPENLDAP_ENV_DOMAIN
+        OLDE: $OPENLDAP_ENV_BASE_DN
+    image: fms-openldap-img:latest
+    container_name: fms-openldap
+    volumes:
+      - openldap-data:/var/lib/ldap
+    dns: 8.8.8.8
+    networks:
+      fms-nw:
+        ipv4_address: $FMS_LDAP_NET
+    command: tail -f /dev/null
+  mongodb:
+    build:
+      context: ./mongodb
+      network: host
+      args:
+        MONGO_VERSION: $FMS_MONGO_VERSION
+    image: fms-mongodb-img:latest
+    container_name: fms-mongodb
+    volumes:
+      - mongodb-data:/home/fms/fmsdb
+    dns: 8.8.8.8
+    networks:
+      fms-nw:
+        ipv4_address: $FMS_MONGO_NET
+    command: tail -f /dev/null
+  core:
+    build: 
+      context: ./core
+      network: host
+      args:
+        ARG_BASE_DN: $OPENLDAP_ENV_BASE_DN_FOR_PAYARA
+    image: fms-core-img:latest
+    container_name: fms-core
+    ports:
+      - "8080:8080"
+    dns: 8.8.8.8
+    networks:
+      fms-nw:      
+        ipv4_address: $FMS_CORE_NET
+    command: tail -f /dev/null
+  corealpine:
+    build:
+      context: ./core-alpine
+      network: host
+      args:
+        ARG_BASE_DN: $OPENLDAP_ENV_BASE_DN_FOR_PAYARA
+    image: fms-core-alpine-img:latest
+    container_name: fms-core-alpine
+    ports:
+      - "8585:8080"
+    dns: 8.8.8.8
+    networks:
+      fms-nw:
+        ipv4_address: $FMS_CORE_ALPINE_NET
+    command: tail -f /dev/null
+networks:
+    default:
+      driver: bridge
+      ipam: 
+        config:
+        - subnet: $FMS_SUBNET/24
+    fms-nw:
+      driver: bridge
+      ipam:
+        driver: default
+        config:
+          - subnet: $FMS_SUBNET/24
+volumes:
+  mongodb-data:
+  openldap-data:
+  

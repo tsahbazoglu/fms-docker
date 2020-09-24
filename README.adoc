@@ -1,0 +1,287 @@
+:toc: left
+:toc-title: Content
+:toclevels: 3
+:sectnums:
+:sectnumlevels: 3
+:docinfo: shared
+
+
+= Form Management System
+telman şahbazoğlu <tsahbazoglu@tspb.org.tr>
+v1.0.0, 2018-03-06
+:title-logo-image: image::tspb_logo.png[]
+
+
+== About
+
+FMS (Form Management System) project is aimed to accelarate development and deployment process of widely used form types like registration forms, tables and pivot input.
+
+Just download *link:https://git.tspb.org.tr/fms/fms/blob/master/quick-start-demo-config.js[quick-start-demo-config.js^]* and customize it to your requirements.
+
+All you need to do is accustom the configuration script file to your needs and import it to mongodb.
+
+You will get both the data structure and Web GUI in one shot.
+
+Check out our demo project and its config.js to discover all the features.
+
+[#user-content-quick-start-with-docker]
+== Quick Start with Docker
+
+== Operation System
+----
+$ lsb_release -a
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 18.04.4 LTS
+Release:	18.04
+Codename:	bionic
+
+----
+
+=== Install
+----
+apt-get update
+apt-get upgrade
+apt-get install docker
+apt-get install docker-compose
+
+cd  ~/git/fms-docker
+sudo -s
+----
+
+=== Install on ubuntu server 18.04
+----
+sudo apt install docker.io
+sudo apt install docker-compose
+
+sudo dockerd &
+
+usermod -aG docker $USER
+newgrp docker
+docker run hello-world
+----
+
+ 
+
+
+run docker as non root:: 
+----
+groupadd docker
+usermod -aG docker $USER
+sudo gpasswd -a $USER docker
+newgrp docker
+docker run hello-world
+
+chmod 755 -R .
+reboot
+----
+
+=== Build & Run
+cleanup::
+----
+docker container stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+docker rmi --force $(docker images -q)
+----
+
+git clone::
+----
+apt-get install git
+
+mkdir ~/git
+cd ~/git
+
+git clone https://git.tspb.org.tr/fms/fms.git
+git clone https://git.tspb.org.tr/fms/fms-docker.git
+
+cd ~/git/fms-docker
+----
+
+replace required files(mongodb&payara)::
+----
+locate mongodb-linux-x86_64-3.2.6.tgz
+~/Downloads/mongodb-linux-x86_64-3.2.6.tgz
+cp ~/Downloads/mongodb-linux-x86_64-3.2.6.tgz \
+   ~/git/fms/docker/mongodb/Apps/mongodb-linux-x86_64-3.2.6.tgz
+
+locate payara | grep zip
+~/Downloads/payara-5.191.zip
+cp ~/Downloads/payara-5.191.zip \
+   ~/git/fms/docker/core/payara.zip 
+----
+
+build&run::
+----
+export  COMPOSE_PROJECT_NAME=tspb
+export  OPENLDAP_ENV_BASE_DN=dc=tspb,dc=org,dc=tr
+export  OPENLDAP_ENV_BASE_DN_FOR_PAYARA="dc\=tspb,dc\=org,dc\=tr"
+export  OPENLDAP_ENV_DOMAIN=tspb.org.tr
+export  OPENLDAP_ENV_PSWD=12345678
+
+source ~/tspb.sh
+docker-compose up --build -d
+----
+or
+----
+export  OPENLDAP_ENV_BASE_DN=dc=tspb,dc=org,dc=tr
+export  OPENLDAP_ENV_BASE_DN_FOR_PAYARA="dc\=tspb,dc\=org,dc\=tr"
+export  OPENLDAP_ENV_DOMAIN=tspb.org.tr
+export  OPENLDAP_ENV_PSWD=12345678
+
+docker-compose -p tspb up --build -d
+----
+
+NOTE: project name will affect network and volume prefixes
+
+
+stop&start::
+----
+cd ~/git/fms-docker
+docker container stop $(docker ps -a -q)
+
+docker-compose up -d
+docker-compose start
+----
+
+=== Initialize
+----
+docker-compose exec core bash
+./config.sh
+./restart.sh
+
+docker-compose exec openldap bash
+./init.sh
+
+docker-compose exec mongodb bash
+./init.sh
+----
+
+=== Compile And Deploy
+----
+cd ~/git/fms
+mvn clean install
+docker cp uys-ear/target/uys-ear-3.2-SNAPSHOT.ear fms-core:/home/fms
+
+cd ../fms-docker
+docker-compose exec core ./deploy.sh
+----
+
+observe::
+----
+docker-compose ps
+----
+
+check inter connections::
+----
+docker-compose exec core ping mongodb
+docker-compose exec core ping openldap
+----
+
+enjoy::
+----
+http://localhost:8080
+
+username : admin
+
+password : 123
+----
+
+== backup & restore
+create backup::
+----
+mkdir ~/fms_backup
+
+docker run --rm \
+--volumes-from fms-mongodb \
+-v ~/fms_backup:/backup \
+ubuntu \
+bash -c "cd /home/fms/fmsdb && tar cvf /backup/fms-mongodb-fmsdb-volume.tar ."
+
+docker run --rm \
+--volumes-from fms-openldap \
+-v ~/fms_backup:/backup \
+ubuntu \
+bash -c "cd /var/lib/ldap && tar cvf /backup/fms-openldap-data-volume.tar ."
+
+----
+
+check backup::
+----
+cd ~/fms_backup
+ls -lrt 
+----
+
+restore tdub::
+----
+docker volume ls
+docker volume rm tdub_mongodb-data
+docker volume rm tdub_openldap-data
+
+docker volume create tdub_mongodb-data
+docker volume create tdub_openldap-data
+
+cp fms-mongodb-fmsdb-volume.tar ~/fms_backup
+cp fms-openldap-data-volume.tar ~/fms_backup
+----
+
+----
+docker run --rm \
+-v tdub_mongodb-data:/recover \
+-v ~/fms_backup:/backup \
+ubuntu \
+bash -c "cd /recover && tar xvf /backup/fms-mongodb-fmsdb-volume.tar"
+
+docker run --rm \
+-v tdub_openldap-data:/recover \
+-v ~/fms_backup:/backup \
+ubuntu \
+bash -c "cd /recover && tar xvf /backup/fms-openldap-data-volume.tar"
+----
+
+restore tspb::
+----
+docker run --rm \
+-v tspb_mongodb-data:/recover \
+-v ~/fms_backup:/backup \
+ubuntu \
+bash -c "cd /recover && tar xvf /backup/fms-mongodb-fmsdb-volume.tar"
+
+docker run --rm \
+-v tspb_openldap-data:/recover \
+-v ~/fms_backup:/backup \
+ubuntu \
+bash -c "cd /recover && tar xvf /backup/fms-openldap-data-volume.tar"
+----
+
+----
+# docker run -d -v tdub_mongodb-data:/home/fms/fmsdb fms-mongodb
+----
+
+
+== Prepare Your First Project on FMS
+
+In a production environment *link:https://git.tspb.org.tr/fms/fms/blob/master/quick-start-demo-config.js[quick-start-demo-config.js^]* should be replaced with one prepared by expirenced data&buisness analyst.
+
+Please do not hesitate to contact with us to find data&buisness analyst having an expirence with FMS project.
+
+There is also a *https://git.tspb.org.tr/fms/fms/blob/master/DEVELOPER-GUIDE-v1.adoc[developer guide^]* for the contributors who want to educate themselves as a data analyst for FMS project.
+
+We can organize eductaion courses in our office for contributors and companies who want 
+to join to our expert team.
+
+We can also consult your team from the scratch to live and support during the your company's project life cycle.
+
+----
+cd  ~/git/fms-docker
+
+docker ps  
+
+docker cp quick-start-demo-config.js docker_mongodb_1:/home/tspb
+
+docker exec -it docker_mongodb_1 bash
+
+export MONGODB_HOME=~/Apps/mongodb-linux-x86_64-3.2.6
+export PATH=$PATH:$MONGODB_HOME/bin
+
+mongo configdb --quiet quick-start-demo-config.js
+----

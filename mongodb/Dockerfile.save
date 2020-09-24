@@ -1,0 +1,43 @@
+FROM ubuntu:18.04 as base
+
+#ENV container openldap
+
+LABEL project="FMS MongoDB"
+LABEL maintainer "tsahbazoglu@tspb.org.tr"
+
+# Prerequisites
+RUN apt-get update
+RUN useradd -ms /bin/bash fms
+RUN apt-get -y install unzip
+RUN apt-get install -y iputils-ping
+RUN apt-get install -y net-tools
+RUN apt-get install -y nano
+
+RUN mkdir -p ~/Apps /home/tspb/demo /home/tspb/tspbdb
+
+COPY start.sh                            /home/tspb
+COPY exportpath.sh                       /home/tspb
+COPY Apps/mongodb-linux-x86_64-3.2.6.tgz /home/tspb/Apps
+COPY demo/admin.js                       /home/tspb/demo
+COPY demo/properties.js                  /home/tspb/demo
+COPY demo/projects.js                    /home/tspb/demo
+COPY demo/ldapmatch.js                   /home/tspb/demo
+COPY demo/ldapmatch.js                   /home/tspb/demo
+COPY demo/init-basedb-user.js            /home/tspb/demo
+
+WORKDIR /home/tspb/Apps
+
+RUN tar xzvf mongodb-linux-x86_64-3.2.6.tgz && \
+    rm -rf mongodb-linux-x86_64-3.2.6.tgz && \
+    chown tspb:tspb -R /home/tspb && \
+    chmod a+x /home/tspb/start.sh
+
+WORKDIR /home/tspb
+
+USER tspb
+
+ENTRYPOINT ["/home/tspb/start.sh"]
+
+
+
+
