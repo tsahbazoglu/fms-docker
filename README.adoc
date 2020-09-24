@@ -65,23 +65,21 @@ docker run hello-world
 chmod 755 -R .
 reboot
 ----
+== Instal git
+----
+apt-get install git
+----
 
 === Build & Run
-cleanup::
+git clone::
 ----
-docker container stop $(docker ps -a -q)
-docker rm $(docker ps -a -q)
-docker rmi --force $(docker images -q)
-----
-
-
-----
+mkdir github
 cd github
 git clone https://github.com/tsahbazoglu/fms-docker.git
 cd fms-docker
 ----
 
-replace:
+replace required files::
 ----
 mv core-alpine/replace_with_payara.zip                 ~/Downloads/payara.zip
 mv core/replace_with_payara.zip                        ~/Downloads/payara.zip
@@ -89,32 +87,11 @@ mv core/replace_with_fms.v.x.x.x.ear                   ~/Downloads/fms.v.1.0.1.e
 mv mongodb/replace_with_mongodb-linux-x86_64-x.x.x.tgz ~/Downloads/mongodb-linux-x86_64-3.2.3.tgz
 ----
 
-
-
-git clone::
+cleanup::
 ----
-apt-get install git
-
-mkdir ~/git
-cd ~/git
-
-git clone https://git.tspb.org.tr/fms/fms.git
-git clone https://git.tspb.org.tr/fms/fms-docker.git
-
-cd ~/git/fms-docker
-----
-
-replace required files(mongodb&payara)::
-----
-locate mongodb-linux-x86_64-3.2.6.tgz
-~/Downloads/mongodb-linux-x86_64-3.2.6.tgz
-cp ~/Downloads/mongodb-linux-x86_64-3.2.6.tgz \
-   ~/git/fms/docker/mongodb/Apps/mongodb-linux-x86_64-3.2.6.tgz
-
-locate payara | grep zip
-~/Downloads/payara-5.191.zip
-cp ~/Downloads/payara-5.191.zip \
-   ~/git/fms/docker/core/payara.zip 
+docker container stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+docker rmi --force $(docker images -q)
 ----
 
 build&run::
