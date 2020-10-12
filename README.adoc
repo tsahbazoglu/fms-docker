@@ -89,12 +89,21 @@ docker rmi --force $(docker images -q)
 
 build&run::
 ----
-export  COMPOSE_PROJECT_NAME=tspb
-export  OPENLDAP_ENV_BASE_DN=dc=tspb,dc=org,dc=tr
-export  OPENLDAP_ENV_BASE_DN_FOR_PAYARA="dc\=tspb,dc\=org,dc\=tr"
-export  OPENLDAP_ENV_DOMAIN=tspb.org.tr
-export  OPENLDAP_ENV_PSWD=12345678
+nano tspb.sh
+export COMPOSE_PROJECT_NAME=tspb
+export OPENLDAP_ENV_BASE_DN=dc=tspb,dc=org,dc=tr
+export OPENLDAP_ENV_BASE_DN_FOR_PAYARA="dc\=tspb,dc\=org,dc\=tr"
+export OPENLDAP_ENV_DOMAIN=tspb.org.tr
+export OPENLDAP_ENV_PSWD=12345678
+export FMS_SUBNET=172.16.250.0
+export FMS_LDAP_NET=172.16.250.2
+export FMS_MONGO_NET=172.16.250.3
+export FMS_CORE_NET=172.16.250.4
+export FMS_CORE_ALPINE_NET=172.16.250.5
+export FMS_MONGO_VERSION=3.2.3
+----
 
+----
 source ~/tspb.sh
 docker-compose up --build -d
 ----
