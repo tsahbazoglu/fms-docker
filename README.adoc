@@ -28,22 +28,15 @@ Distributor ID:	Ubuntu
 Description:	Ubuntu 18.04.4 LTS
 Release:	18.04
 Codename:	bionic
-
 ----
 
-=== Install
+=== Install docker on ubuntu server 18.04
 ----
 apt-get update
 apt-get upgrade
 apt-get install docker
 apt-get install docker-compose
 
-cd  ~/git/fms-docker
-sudo -s
-----
-
-=== Install on ubuntu server 18.04
-----
 sudo apt install docker.io
 sudo apt install docker-compose
 
