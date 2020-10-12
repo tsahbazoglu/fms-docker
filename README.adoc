@@ -137,11 +137,15 @@ docker-compose exec mongodb bash
 
 === Compile And Deploy
 ----
-cd ~/git/fms
-mvn clean install
-docker cp uys-ear/target/uys-ear-3.2-SNAPSHOT.ear fms-core:/home/fms
+cd ~/github
+git clone https://github.com/tsahbazoglu/fms.git
+cd ~/github/fms
 
-cd ../fms-docker
+mvn clean install
+
+docker cp ~/github/fms/fms-ear/target/fms-ear-1.0.0.ear fms-core:/home/fms
+
+cd ~/github/fms-docker
 docker-compose exec core ./deploy.sh
 ----
 
