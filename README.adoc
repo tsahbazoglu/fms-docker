@@ -111,11 +111,6 @@ docker-compose up --build -d
 or by setting COMPOSE_PROJECT_NAME environment variable as docker-copmose parameter like below
 
 ----
-export  OPENLDAP_ENV_BASE_DN=dc=tspb,dc=org,dc=tr
-export  OPENLDAP_ENV_BASE_DN_FOR_PAYARA="dc\=tspb,dc\=org,dc\=tr"
-export  OPENLDAP_ENV_DOMAIN=tspb.org.tr
-export  OPENLDAP_ENV_PSWD=12345678
-
 docker-compose -p tspb up --build -d
 ----
 
