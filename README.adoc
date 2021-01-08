@@ -74,8 +74,8 @@ cd fms-docker
 
 replace required files::
 ----
-cp ~/Downloads/payara.zip                      core-alpine/payara.zip
-cp ~/Downloads/payara.zip                      core/payara.zip
+cp ~/Downloads/payara-5.2020.3.zip             core-alpine/payara.zip
+cp ~/Downloads/payara-5.2020.3.zip             core/payara.zip
 cp ~/Downloads/fms.v.1.0.1.ear                 core/fms.v.1.0.1.ear 
 cp ~/Downloads/mongodb-linux-x86_64-3.2.3.tgz  mongodb/mongodb-linux-x86_64-3.2.3.tgz
 ----
