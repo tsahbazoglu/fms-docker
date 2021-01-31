@@ -39,6 +39,8 @@ services:
       network: host
       args:
         ARG_BASE_DN: $OPENLDAP_ENV_BASE_DN_FOR_PAYARA
+        PAYARA_FILENAME: $FMS_PAYARA_FILENAME
+        FMS_EAR_RELEASE: $FMS_EAR_RELEASE
     image: fms-core-img:latest
     container_name: fms-core
     ports:

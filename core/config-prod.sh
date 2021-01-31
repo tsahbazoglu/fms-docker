@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo -e  "---------------------------------------------------------------------------------------------- Start"
-asadmin start-domain
+asadmin start-domain production
 
 echo -e  "---------------------------------------------------------------------------------------------- JNDI Custom Resources"
 echo -e  "---------------------------------------------------------------- fms/environments"
@@ -110,5 +110,5 @@ mail.smtp.port=25 \
 mail/fmsExternal;
 
 echo -e  "---------------------------------------------------------------------------------------------- Stop"
-asadmin stop-domain
+asadmin stop-domain production
 

@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 as base
+FROM ubuntu:20.04 as base
 
 #ENV container openldap
 
@@ -19,24 +19,25 @@ RUN apt-get -y install unzip
 RUN apt-get install -y iputils-ping
 RUN apt-get install -y net-tools
 RUN apt-get install -y nano
+RUN apt-get install -y libcurl4
 
 RUN mkdir -p /home/fms/Apps /home/fms/demo /home/fms/tspbdb /home/fms/tdubdb /home/fms/fmsdb
 
-COPY start.sh                                       /home/fms
-COPY init.sh                                        /home/fms
-COPY Apps/mongodb-linux-x86_64-${MONGO_VERSION}.tgz /home/fms/Apps
-COPY demo/init.sh                                   /home/fms/demo
-COPY demo/admin.js                                  /home/fms/demo
-COPY demo/properties.js                             /home/fms/demo
-COPY demo/projects.js                               /home/fms/demo
-COPY demo/ldapmatch.js                              /home/fms/demo
-COPY demo/ldapmatch.js                              /home/fms/demo
-COPY demo/init-basedb-user.js                       /home/fms/demo
+COPY start.sh                  /home/fms
+COPY init.sh                   /home/fms
+COPY ${MONGO_VERSION}.tgz      /home/fms/Apps
+COPY demo/init.sh              /home/fms/demo
+COPY demo/admin.js             /home/fms/demo
+COPY demo/properties.js        /home/fms/demo
+COPY demo/projects.js          /home/fms/demo
+COPY demo/ldapmatch.js         /home/fms/demo
+COPY demo/ldapmatch.js         /home/fms/demo
+COPY demo/init-basedb-user.js  /home/fms/demo
 
 WORKDIR /home/fms/Apps
 
-RUN tar xzvf mongodb-linux-x86_64-${MONGO_VERSION}.tgz && \
-    rm -rf mongodb-linux-x86_64-${MONGO_VERSION}.tgz && \
+RUN tar xzvf ${MONGO_VERSION}.tgz && \
+    rm -rf ${MONGO_VERSION}.tgz && \
     chown fms:fms -R /home/fms && \
     chmod u+x /home/fms/start.sh && \
     chmod u+x /home/fms/init.sh && \
@@ -46,7 +47,7 @@ WORKDIR /home/fms
 
 USER fms
 
-ENV MONGODB_HOME="/home/fms/Apps/mongodb-linux-x86_64-${MONGO_VERSION}"
+ENV MONGODB_HOME="/home/fms/Apps/${MONGO_VERSION}"
 ENV PATH="$PATH:$MONGODB_HOME/bin"
 
 ENTRYPOINT ["/home/fms/start.sh"]

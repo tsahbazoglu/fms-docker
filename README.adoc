@@ -74,11 +74,12 @@ cd fms-docker
 
 replace required files::
 ----
-cp ~/Downloads/payara-5.2020.3.zip             core-alpine/payara.zip
-cp ~/Downloads/payara-5.2020.3.zip             core/payara.zip
-cp ~/Downloads/fms.v.1.0.1.ear                 core/fms.v.1.0.1.ear 
-cp ~/Downloads/mongodb-linux-x86_64-3.2.3.tgz  mongodb/mongodb-linux-x86_64-3.2.3.tgz
+cp ~/Downloads/payara-5.2020.3.zip                        ~/github/fms-docker/core-alpine
+cp ~/Downloads/payara-5.2020.3.zip                        ~/github/fms-docker/core
+cp ~/Downloads/fms-ear-1.0.0.ear                          ~/github/fms-docker/core
+cp ~/Downloads/mongodb-linux-x86_64-ubuntu2004-4.4.3.tgz  ~/github/fms-docker/mongodb
 ----
+
 
 cleanup::
 ----
@@ -174,7 +175,8 @@ password : 123
 ----
 
 == backup & restore
-create backup::
+
+=== create backup
 ----
 mkdir ~/fms_backup
 
@@ -198,43 +200,40 @@ cd ~/fms_backup
 ls -lrt 
 ----
 
-restore tdub::
+=== restore
+
+rectreate volumes::
 ----
 docker volume ls
-docker volume rm tdub_mongodb-data
-docker volume rm tdub_openldap-data
 
-docker volume create tdub_mongodb-data
-docker volume create tdub_openldap-data
+docker volume rm fms_mongodb-data
+docker volume rm fms_openldap-data
 
-cp fms-mongodb-fmsdb-volume.tar ~/fms_backup
-cp fms-openldap-data-volume.tar ~/fms_backup
+docker volume create fms_mongodb-data
+docker volume create fms_openldap-data
 ----
 
+get backups::
+----
+mkdir ~/fms_backup
+
+cd ~/fms_backup
+
+scp username@fms_server_ip:/home/fms_backup/fms-mongodb-fmsdb-volume.tar ./
+
+scp username@fms_server_ip:/home/fms_backup/fms-openldap-data-volume.tar ./
+----
+
+restore::
 ----
 docker run --rm \
--v tdub_mongodb-data:/recover \
+-v fms_mongodb-data:/recover \
 -v ~/fms_backup:/backup \
 ubuntu \
 bash -c "cd /recover && tar xvf /backup/fms-mongodb-fmsdb-volume.tar"
 
 docker run --rm \
--v tdub_openldap-data:/recover \
--v ~/fms_backup:/backup \
-ubuntu \
-bash -c "cd /recover && tar xvf /backup/fms-openldap-data-volume.tar"
-----
-
-restore tspb::
-----
-docker run --rm \
--v tspb_mongodb-data:/recover \
--v ~/fms_backup:/backup \
-ubuntu \
-bash -c "cd /recover && tar xvf /backup/fms-mongodb-fmsdb-volume.tar"
-
-docker run --rm \
--v tspb_openldap-data:/recover \
+-v fms_openldap-data:/recover \
 -v ~/fms_backup:/backup \
 ubuntu \
 bash -c "cd /recover && tar xvf /backup/fms-openldap-data-volume.tar"

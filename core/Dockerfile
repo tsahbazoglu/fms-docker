@@ -1,4 +1,4 @@
-FROM ubuntu:19.10 as base
+FROM ubuntu:20.04 as base
 
 #ENV container openldap
 
@@ -7,6 +7,10 @@ LABEL maintainer "tsahbazoglu@tspb.org.tr"
 
 ARG ARG_BASE_DN="dc\=tspb,dc\=org,dc\=tr"
 ENV BASE_DN="$ARG_BASE_DN"
+
+# see docker-compose.yaml args segment
+ARG PAYARA_FILENAME
+ARG FMS_EAR_RELEASE
 
 # replace ubuntu archive
 RUN apt-get -y install sed  
@@ -20,7 +24,6 @@ RUN apt-get -y install iputils-ping
 RUN apt-get -y install net-tools
 RUN apt-get -y install nano
 
-
 # setting locale
 RUN apt-get install -y locales
 RUN locale-gen en_US.UTF-8
@@ -31,8 +34,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
-
-# InstallL OpenJDK 8
+# Install OpenJDK 8
 RUN apt-get install openjdk-8-jdk -y
 
 # WOWRKDIR
@@ -48,42 +50,52 @@ RUN mkdir -p /home/fms/Apps
 RUN mkdir -p /home/fms/download
 RUN mkdir -p /home/fms/export
 
-COPY payara.zip               /home/fms/Apps
-COPY uys-ear-3.2-SNAPSHOT.ear /home/fms
-COPY start.sh                 /home/fms
-COPY restart.sh               /home/fms
-COPY restart-debug.sh         /home/fms
-COPY config.sh                /home/fms
-COPY deploy.sh                /home/fms
-COPY log.sh                   /home/fms
+COPY ${PAYARA_FILENAME}.zip /home/fms/Apps
+COPY ${FMS_EAR_RELEASE}     /home/fms
+COPY start.sh               /home/fms
+COPY restart.sh             /home/fms
+COPY restart-debug.sh       /home/fms
+COPY config.sh              /home/fms
+COPY restart-prod.sh        /home/fms
+COPY restart-debug-prod.sh  /home/fms
+COPY config-prod.sh         /home/fms
+COPY deploy.sh              /home/fms
+COPY log.sh                 /home/fms
+COPY log-prod.sh            /home/fms
 
 WORKDIR /home/fms/Apps
 
-RUN unzip payara.zip && \
-    rm -rf payara.zip && \
-    mv payara* payara
+RUN unzip ${PAYARA_FILENAME}.zip -d ${PAYARA_FILENAME} && \
+    rm -rf ${PAYARA_FILENAME}.zip
 
 USER root
 
 RUN chown fms:fms -R /home/fms/start.sh && \
     chown fms:fms -R /home/fms/restart.sh && \
     chown fms:fms -R /home/fms/restart-debug.sh && \
+    chown fms:fms -R /home/fms/restart-debug-prod.sh && \
     chown fms:fms -R /home/fms/config.sh && \
+    chown fms:fms -R /home/fms/config-prod.sh && \
     chown fms:fms -R /home/fms/deploy.sh && \
-    chown fms:fms -R /home/fms/log.sh
+    chown fms:fms -R /home/fms/log.sh && \
+    chown fms:fms -R /home/fms/log-prod.sh
+
 
 RUN chmod a+x /home/fms/start.sh && \
     chmod a+x /home/fms/restart.sh && \
     chmod a+x /home/fms/restart-debug.sh && \
+    chmod a+x /home/fms/restart-debug-prod.sh && \
     chmod a+x /home/fms/config.sh && \
+    chmod a+x /home/fms/config-prod.sh && \
     chmod a+x /home/fms/deploy.sh && \
-    chmod a+x /home/fms/log.sh
+    chmod a+x /home/fms/log.sh && \
+    chmod a+x /home/fms/log-prod.sh
 
 WORKDIR /home/fms
 
 USER fms
 
-ENV SERVER_HOME="/home/fms/Apps/payara"
+ENV SERVER_HOME="/home/fms/Apps/${PAYARA_FILENAME}/payara5"
 ENV PATH="$PATH:$SERVER_HOME/bin"
 
 ENTRYPOINT ["/home/fms/start.sh"]
